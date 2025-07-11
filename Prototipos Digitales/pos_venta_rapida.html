@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto de Venta Rápida - Estación de Servicio</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f4f7f6;
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ecf0f1;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            flex-grow: 1;
+        }
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 12px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .sidebar ul li a:hover, .sidebar ul li a.active {
+            background-color: #34495e;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            background-color: #fcfcfc;
+            display: flex;
+            flex-direction: column;
+        }
+        .main-content header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .main-content header h1 {
+            color: #2c3e50;
+            margin: 0;
+        }
+        .pos-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* Una columna más ancha para productos/servicios, otra para el resumen */
+            gap: 25px;
+            flex-grow: 1;
+        }
+        .left-panel {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+        }
+        .right-panel {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .product-search-group, .service-search-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .product-search-group input, .service-search-group input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .product-search-group button, .service-search-group button {
+            background-color: #28a745; /* Verde */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .product-search-group button:hover, .service-search-group button:hover {
+            background-color: #218838;
+        }
+        .fuel-section, .lubricentro-section {
+            margin-bottom: 25px;
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .fuel-section h3, .lubricentro-section h3 {
+            color: #34495e;
+            margin-top: 0;
+        }
+        .fuel-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .fuel-input-group label {
+            min-width: 80px;
+        }
+        .fuel-input-group input, .fuel-input-group select {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        table th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        .item-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .item-actions button {
+            background-color: #dc3545; /* Rojo */
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        .summary-total {
+            text-align: right;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 20px;
+            color: #2c3e50;
+        }
+        .payment-options {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .payment-options label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .payment-options select, .payment-options input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .action-buttons button {
+            flex-grow: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .action-buttons .btn-primary { background-color: #007bff; }
+        .action-buttons .btn-primary:hover { background-color: #0056b3; }
+        .action-buttons .btn-danger { background-color: #dc3545; }
+        .action-buttons .btn-danger:hover { background-color: #c82333; }
+        .action-buttons .btn-secondary { background-color: #6c757d; }
+        .action-buttons .btn-secondary:hover { background-color: #5a6268; }
+
+        .logout-button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            display: block;
+            margin-top: 20px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .logout-button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>Sistema Estación</h2>
+        <nav>
+            <ul>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="pos_venta_rapida.html" class="active">Venta Rápida (POS)</a></li>
+                <li><a href="inventario_listado.html">Inventario</a></li>
+                <li><a href="#">Reportes</a></li>
+                <li><a href="gestion_usuarios.html">Gestión de Usuarios</a></li>
+            </ul>
+        </nav>
+        <a href="login.html" class="logout-button">Cerrar Sesión</a>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <h1>Punto de Venta Rápida</h1>
+            <div class="user-info">Facturador: [Nombre de Usuario]</div>
+        </header>
+
+        <section class="pos-layout">
+            <div class="left-panel">
+                <h3>Venta de Combustible</h3>
+                <div class="fuel-section">
+                    <div class="fuel-input-group">
+                        <label for="fuelType">Tipo:</label>
+                        <select id="fuelType">
+                            <option value="Super">Gasolina Súper</option>
+                            <option value="Regular">Gasolina Regular</option>
+                            <option value="Diesel">Diésel</option>
+                        </select>
+                    </div>
+                    <div class="fuel-input-group">
+                        <label for="fuelAmount">Cantidad (L):</label>
+                        <input type="number" id="fuelAmount" min="0.1" step="0.1" value="0.0">
+                    </div>
+                    <div class="fuel-input-group">
+                        <label for="fuelPrice">Precio/L:</label>
+                        <input type="number" id="fuelPrice" value="750.00" readonly>
+                    </div>
+                    <div class="fuel-input-group">
+                        <label>Subtotal:</label>
+                        <span id="fuelSubtotal">₡ 0.00</span>
+                    </div>
+                    <button onclick="addFuelToCart()">Añadir Combustible</button>
+                </div>
+
+                <h3>Venta de Productos y Servicios (Lubricentro)</h3>
+                <div class="lubricentro-section">
+                    <h4>Productos</h4>
+                    <div class="product-search-group">
+                        <input type="text" id="productSearch" placeholder="Buscar producto por nombre...">
+                        <button onclick="searchProduct()">Buscar</button>
+                    </div>
+                    <select id="productList" size="5" style="width: 100%; margin-bottom: 15px;">
+                        <option value="Aceite 10W40|5000">Aceite Sintético 10W40 (₡5,000)</option>
+                        <option value="Filtro Aceite T800|15000">Filtro de Aceite T800 (₡15,000)</option>
+                        <option value="Aditivo Gasolina|7500">Aditivo Limpiador Gasolina (₡7,500)</option>
+                    </select>
+                    <div class="fuel-input-group">
+                        <label for="productQuantity">Cantidad:</label>
+                        <input type="number" id="productQuantity" min="1" value="1">
+                    </div>
+                    <button onclick="addProductToCart()">Añadir Producto</button>
+
+                    <h4 style="margin-top: 25px;">Servicios</h4>
+                    <div class="service-search-group">
+                        <input type="text" id="serviceSearch" placeholder="Buscar servicio por nombre...">
+                        <button onclick="searchService()">Buscar</button>
+                    </div>
+                    <select id="serviceList" size="3" style="width: 100%; margin-bottom: 15px;">
+                        <option value="Cambio Aceite Básico|10000">Cambio de Aceite Básico (₡10,000)</option>
+                        <option value="Revisión Frenos|15000">Revisión de Frenos (₡15,000)</option>
+                        <option value="Diagnóstico Motor|20000">Diagnóstico de Motor (₡20,000)</option>
+                    </select>
+                    <button onclick="addServiceToCart()">Añadir Servicio</button>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <h3>Detalle de Factura</h3>
+                <table id="cartTable">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Cant.</th>
+                            <th>Precio Unit.</th>
+                            <th>Subtotal</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+                <div class="summary-total">
+                    Total: <span id="cartTotal">₡ 0.00</span>
+                </div>
+
+                <div class="payment-options">
+                    <label for="paymentMethod">Forma de Pago:</label>
+                    <select id="paymentMethod">
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Tarjeta">Tarjeta de Crédito/Débito</option>
+                        <option value="Transferencia">Transferencia Bancaria</option>
+                    </select>
+                    <label for="customerInfo">Cliente (Opcional):</label>
+                    <input type="text" id="customerInfo" placeholder="Nombre o Cédula del Cliente">
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="processSale()">Procesar Venta</button>
+                    <button class="btn-danger" onclick="clearCart()">Vaciar Carrito</button>
+                    </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.sidebar ul li a');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            // Lógica para el precio del combustible (simulación)
+            const fuelTypeSelect = document.getElementById('fuelType');
+            const fuelPriceInput = document.getElementById('fuelPrice');
+            const fuelAmountInput = document.getElementById('fuelAmount');
+            const fuelSubtotalSpan = document.getElementById('fuelSubtotal');
+
+            const fuelPrices = {
+                "Super": 750.00,
+                "Regular": 700.00,
+                "Diesel": 650.00
+            };
+
+            function updateFuelSubtotal() {
+                const type = fuelTypeSelect.value;
+                const amount = parseFloat(fuelAmountInput.value) || 0;
+                const pricePerLiter = fuelPrices[type];
+                fuelPriceInput.value = pricePerLiter.toFixed(2);
+                fuelSubtotalSpan.textContent = `₡ ${(amount * pricePerLiter).toFixed(2)}`;
+            }
+
+            fuelTypeSelect.addEventListener('change', updateFuelSubtotal);
+            fuelAmountInput.addEventListener('input', updateFuelSubtotal);
+            updateFuelSubtotal(); // Carga inicial
+
+            // Carrito de compras y total
+            const cartTableBody = document.getElementById('cartTable').querySelector('tbody');
+            const cartTotalSpan = document.getElementById('cartTotal');
+            let cartItems = [];
+
+            function updateCartDisplay() {
+                cartTableBody.innerHTML = '';
+                let total = 0;
+                cartItems.forEach((item, index) => {
+                    const row = cartTableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${item.quantity}</td>
+                        <td>₡ ${item.price.toFixed(2)}</td>
+                        <td>₡ ${(item.quantity * item.price).toFixed(2)}</td>
+                        <td>
+                            <div class="item-actions">
+                                <button onclick="removeItem(${index})">X</button>
+                            </div>
+                        </td>
+                    `;
+                    total += item.quantity * item.price;
+                });
+                cartTotalSpan.textContent = `₡ ${total.toFixed(2)}`;
+            }
+
+            window.addFuelToCart = function() {
+                const type = fuelTypeSelect.value;
+                const amount = parseFloat(fuelAmountInput.value);
+                const price = parseFloat(fuelPriceInput.value);
+
+                if (amount > 0) {
+                    cartItems.push({
+                        name: `Combustible ${type}`,
+                        quantity: amount,
+                        price: price,
+                        type: 'fuel'
+                    });
+                    updateCartDisplay();
+                    fuelAmountInput.value = '0.0'; // Reset
+                    updateFuelSubtotal(); // Reset fuel subtotal display
+                } else {
+                    alert('Por favor, ingrese una cantidad de combustible válida.');
+                }
+            };
+
+            window.addProductToCart = function() {
+                const productSelect = document.getElementById('productList');
+                const productQuantity = parseInt(document.getElementById('productQuantity').value);
+                
+                if (productSelect.value && productQuantity > 0) {
+                    const [name, price] = productSelect.value.split('|');
+                    cartItems.push({
+                        name: name,
+                        quantity: productQuantity,
+                        price: parseFloat(price),
+                        type: 'product'
+                    });
+                    updateCartDisplay();
+                    document.getElementById('productQuantity').value = '1'; // Reset
+                } else {
+                    alert('Seleccione un producto y una cantidad válida.');
+                }
+            };
+
+            window.addServiceToCart = function() {
+                const serviceSelect = document.getElementById('serviceList');
+                
+                if (serviceSelect.value) {
+                    const [name, price] = serviceSelect.value.split('|');
+                    cartItems.push({
+                        name: name,
+                        quantity: 1, // Servicios generalmente son 1 unidad
+                        price: parseFloat(price),
+                        type: 'service'
+                    });
+                    updateCartDisplay();
+                } else {
+                    alert('Seleccione un servicio.');
+                }
+            };
+
+            window.removeItem = function(index) {
+                cartItems.splice(index, 1);
+                updateCartDisplay();
+            };
+
+            window.processSale = function() {
+                if (cartItems.length === 0) {
+                    alert('El carrito está vacío. Añada items para procesar la venta.');
+                    return;
+                }
+                const total = parseFloat(cartTotalSpan.textContent.replace('₡ ', ''));
+                const paymentMethod = document.getElementById('paymentMethod').value;
+                const customerInfo = document.getElementById('customerInfo').value;
+
+                // --- Aquí iría la lógica para enviar los datos al backend (PHP) ---
+                // Simulación de envío exitoso:
+                alert(`Venta Procesada!\nTotal: ₡ ${total.toFixed(2)}\nForma de Pago: ${paymentMethod}\nCliente: ${customerInfo || 'Consumidor Final'}\nItems: ${JSON.stringify(cartItems, null, 2)}`);
+                
+                // Después de procesar, limpiar el carrito
+                clearCart();
+            };
+
+            window.clearCart = function() {
+                cartItems = [];
+                updateCartDisplay();
+                alert('Carrito vaciado.');
+            };
+
+            // Simulación de búsqueda (en un sistema real esto buscaría en BD)
+            window.searchProduct = function() {
+                const searchTerm = document.getElementById('productSearch').value.toLowerCase();
+                const productList = document.getElementById('productList');
+                // Lógica de filtrado de opciones aquí, o petición AJAX al backend
+                alert(`Simulando búsqueda de productos: "${searchTerm}"`);
+            };
+            window.searchService = function() {
+                const searchTerm = document.getElementById('serviceSearch').value.toLowerCase();
+                alert(`Simulando búsqueda de servicios: "${searchTerm}"`);
+            };
+        });
+    </script>
+</body>
+</html>

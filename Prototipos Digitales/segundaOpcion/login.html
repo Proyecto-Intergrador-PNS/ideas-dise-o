@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Minimalista - Estación de Servicio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f7f9fc; /* Gris muy claro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .login-card {
+            background-color: #ffffff;
+            padding: 50px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 380px;
+            max-width: 90%;
+            text-align: center;
+            position: relative; /* Para el logo */
+        }
+        .login-card h2 {
+            color: #2c3e50;
+            margin-bottom: 40px;
+            font-size: 2em;
+            font-weight: 600;
+        }
+        .input-field {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        .input-field input {
+            width: calc(100% - 40px);
+            padding: 15px 20px 15px 45px; /* Espacio para el icono */
+            border: 1px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 1.1em;
+            background-color: #fcfdfe;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .input-field input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+        }
+        .input-field i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+        .login-button {
+            width: 100%;
+            padding: 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-top: 20px;
+        }
+        .login-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        .error-message {
+            color: #e74c3c;
+            margin-top: 20px;
+            font-size: 0.95em;
+        }
+        .logo {
+            position: absolute;
+            top: -60px; /* Ajusta esto para que quede por encima */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #007bff;
+            border-radius: 50%;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+        }
+        .logo i {
+            color: white;
+            font-size: 3em;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo">
+            <i class="fas fa-gas-pump"></i>
+        </div>
+        <h2>Bienvenido</h2>
+        <form id="loginForm">
+            <div class="input-field">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" name="username" placeholder="Nombre de usuario" required>
+            </div>
+            <div class="input-field">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" name="password" placeholder="Contraseña" required>
+            </div>
+            <button type="submit" class="login-button">Iniciar Sesión</button>
+            <p id="errorMessage" class="error-message" style="display: none;">Usuario o contraseña incorrectos.</p>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            if (username === 'admin' && password === 'admin123') {
+                errorMessage.style.display = 'none';
+                // En un sistema real: petición AJAX al backend
+                window.location.href = 'dashboard.html';
+            } else {
+                errorMessage.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

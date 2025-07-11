@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes con Filtros Avanzados - Estación de Servicio</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f4f7f6;
+            display: flex;
+            min-height: 100vh;
+            color: #333;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ecf0f1;
+            font-size: 1.8em;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            flex-grow: 1;
+        }
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 12px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .sidebar ul li a:hover, .sidebar ul li a.active {
+            background-color: #34495e;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            background-color: #fcfcfc;
+            display: flex;
+            flex-direction: column;
+        }
+        .main-content header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .main-content header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 2.2em;
+        }
+        .reports-section {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .report-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .report-toolbar h2 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.5em;
+        }
+        .report-toolbar button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .report-toolbar button:hover {
+            background-color: #0056b3;
+        }
+        .report-display {
+            flex-grow: 1;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-y: auto;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #777;
+        }
+        .report-display table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            text-align: left;
+            display: none;
+        }
+        .report-display table th, .report-display table td {
+            border: 1px solid #eee;
+            padding: 10px 15px;
+        }
+        .report-display table th {
+            background-color: #e9ecef;
+            color: #34495e;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .report-display table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        /* Modal para filtros */
+        .modal {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            width: 500px;
+            max-width: 90%;
+            position: relative;
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-content h3 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .modal-content .form-group {
+            margin-bottom: 20px;
+        }
+        .modal-content .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        .modal-content .form-group select, .modal-content .form-group input[type="date"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        .modal-actions {
+            text-align: right;
+            margin-top: 30px;
+        }
+        .modal-actions button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            color: white;
+            transition: background-color 0.3s ease;
+            margin-left: 10px;
+        }
+        .btn-apply { background-color: #28a745; }
+        .btn-apply:hover { background-color: #218838; }
+        .btn-cancel-modal { background-color: #6c757d; }
+        .btn-cancel-modal:hover { background-color: #5a6268; }
+
+        .logout-button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            display: block;
+            margin-top: 20px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .logout-button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>Sistema Estación</h2>
+        <nav>
+            <ul>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="pos_venta_rapida.html">Venta Rápida</a></li>
+                <li><a href="inventario_listado.html">Inventario</a></li>
+                <li><a href="reportes_modal_filters.html" class="active">Reportes</a></li>
+                <li><a href="gestion_usuarios.html">Gestión de Usuarios</a></li>
+            </ul>
+        </nav>
+        <a href="login.html" class="logout-button">Cerrar Sesión</a>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <h1>Generación de Reportes</h1>
+            <div class="user-info">Usuario: [Nombre de Usuario]</div>
+        </header>
+
+        <section class="reports-section">
+            <div class="report-toolbar">
+                <h2>Vista de Reporte</h2>
+                <button onclick="openFilterModal()">Configurar Reporte</button>
+            </div>
+
+            <div class="report-display" id="reportDisplay">
+                <p>Haga clic en "Configurar Reporte" para seleccionar el tipo y los filtros.</p>
+                <table id="reportTable" style="display: none;">
+                    <thead>
+                        </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div id="filterModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" onclick="closeFilterModal()">&times;</span>
+                <h3>Configuración de Reporte</h3>
+                <div class="form-group">
+                    <label for="reportType">Tipo de Reporte:</label>
+                    <select id="reportType">
+                        <option value="">Seleccione un reporte</option>
+                        <option value="ventas_diarias">Ventas Diarias</option>
+                        <option value="ventas_por_producto">Ventas por Producto</option>
+                        <option value="movimientos_inventario">Movimientos de Inventario</option>
+                        <option value="stock_actual">Estado de Stock Actual</option>
+                        <option value="facturas_anuladas">Facturas Anuladas</option>
+                        <option value="auditoria_usuarios">Actividad de Usuarios</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="startDate">Fecha Inicio:</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="form-group">
+                    <label for="endDate">Fecha Fin:</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-cancel-modal" onclick="closeFilterModal()">Cancelar</button>
+                    <button class="btn-apply" onclick="generateReport()">Generar Reporte</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.sidebar ul li a');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('startDate').value = today;
+            document.getElementById('endDate').value = today;
+
+            const filterModal = document.getElementById('filterModal');
+            const reportDisplay = document.getElementById('reportDisplay');
+            const reportTable = document.getElementById('reportTable');
+            const tableHead = reportTable.querySelector('thead');
+            const tableBody = reportTable.querySelector('tbody');
+
+            window.openFilterModal = function() {
+                filterModal.style.display = 'flex'; // Usar flex para centrar
+            };
+
+            window.closeFilterModal = function() {
+                filterModal.style.display = 'none';
+            };
+
+            window.generateReport = function() {
+                const reportType = document.getElementById('reportType').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+
+                reportDisplay.innerHTML = '';
+                tableHead.innerHTML = '';
+                tableBody.innerHTML = '';
+                reportTable.style.display = 'none';
+
+                if (!reportType) {
+                    reportDisplay.innerHTML = '<p style="color: #e74c3c;">Por favor, seleccione un tipo de reporte.</p>';
+                    closeFilterModal();
+                    return;
+                }
+
+                // Simulación de datos (igual que en la versión anterior)
+                let headers = [];
+                let data = [];
+
+                switch (reportType) {
+                    case 'ventas_diarias':
+                        headers = ['Fecha', 'Total Ventas', 'Transacciones', 'Combustible Vendido (L)'];
+                        data = [[`${startDate}`, '₡ 1,250,000', '185', '2,500']];
+                        break;
+                    case 'ventas_por_producto':
+                        headers = ['Producto', 'Cantidad Vendida', 'Total Generado (₡)'];
+                        data = [['Gasolina Súper', '10,000 L', '7,500,000']];
+                        break;
+                    case 'movimientos_inventario':
+                        headers = ['ID Mov.', 'Producto', 'Tipo', 'Cantidad', 'Fecha/Hora', 'Usuario'];
+                        data = [['M001', 'Gasolina Súper', 'Entrada', '5000 L', '2025-06-20 08:00', 'admin']];
+                        break;
+                    case 'stock_actual':
+                        headers = ['ID', 'Producto', 'Categoría', 'Stock Actual', 'Unidad', 'Último Mov.'];
+                        data = [['1001', 'Gasolina Súper', 'Combustible', '15000', 'L', '2025-06-25 10:00']];
+                        break;
+                    case 'facturas_anuladas':
+                        headers = ['ID Factura', 'Fecha Emisión', 'Cliente', 'Total (₡)', 'Motivo Anulación', 'Usuario Anuló'];
+                        data = [['F001', '2025-06-18', 'Juan Pérez', '50,000', 'Error de cantidad', 'admin']];
+                        break;
+                    case 'auditoria_usuarios':
+                        headers = ['ID Auditoría', 'Usuario', 'Acción', 'Módulo Afectado', 'Fecha/Hora'];
+                        data = [['A001', 'admin', 'Login Exitoso', 'Seguridad', '2025-06-26 08:00']];
+                        break;
+                    default:
+                        reportDisplay.innerHTML = '<p>No se encontró información para el tipo de reporte seleccionado.</p>';
+                        closeFilterModal();
+                        return;
+                }
+
+                let headerRow = tableHead.insertRow();
+                headers.forEach(headerText => {
+                    let th = document.createElement('th');
+                    th.textContent = headerText;
+                    headerRow.appendChild(th);
+                });
+
+                data.forEach(rowData => {
+                    let row = tableBody.insertRow();
+                    rowData.forEach(cellData => {
+                        let cell = row.insertCell();
+                        cell.textContent = cellData;
+                    });
+                });
+
+                reportTable.style.display = 'table';
+                reportDisplay.innerHTML = '';
+                reportDisplay.appendChild(reportTable); // Asegura que la tabla esté dentro del display
+                
+                closeFilterModal(); // Cerrar el modal después de generar
+            };
+        });
+    </script>
+</body>
+</html>
